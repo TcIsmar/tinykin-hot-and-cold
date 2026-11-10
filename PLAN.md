@@ -123,7 +123,10 @@ Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with th
 - [x] Style the panel with the game's font, text style and icons; add previous/next arrows
 - [x] Clearer "radar locked" message below 90%
 - [x] Radar keys in the game's Controls menu (view, rebind, reset)
-- [ ] Playtest the restyled panel and the Controls menu rows (main menu and pause menu)
+- [x] Playtest the restyled panel: the Veranda taken to 100% pollen and 100% tinykin with the radar,
+  including the tinykin side, the 90% lock message and switching targets
+- [x] Radar rows appear in the Controls menu (main menu and pause menu, confirmed in the log)
+- [ ] Try rebinding a radar key in the Controls menu
 
 ### Phase 3: Feedback
 
@@ -142,5 +145,6 @@ Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with th
 - [ ] Player README: install, uninstall, controls, Steam Deck launch option
 - [ ] LICENSE (MIT; confirm the copyright name)
 - [ ] Packaging: plugin-only zip and a full pack that includes BepInEx
+- [ ] Showcase post in the Steam General Discussions with a highlight video (drafted; credits Claude)
 - [ ] GitHub repository and Nexus Mods page; post in the
   [Steam thread](https://steamcommunity.com/app/1599020/discussions/0/3432326055082924313) that asked for this feature
