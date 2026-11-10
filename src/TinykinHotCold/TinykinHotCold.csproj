@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>TinykinHotCold</AssemblyName>
+    <RootNamespace>TinykinHotCold</RootNamespace>
+    <Product>Tinykin Hot &amp; Cold</Product>
+    <PluginGuid>tinykin.hotandcold</PluginGuid>
+    <Version>0.1.0</Version>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <!-- Game, Unity and BepInEx assemblies come from the local install. They are never copied or committed. -->
+  <ItemGroup>
+    <Reference Include="BepInEx" HintPath="$(BepInExCoreDir)\BepInEx.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExCoreDir)\0Harmony.dll" Private="false" />
+    <Reference Include="Game" HintPath="$(TinykinManagedDir)\Game.dll" Private="false" />
+    <Reference Include="ScriptableObject-Architecture" HintPath="$(TinykinManagedDir)\ScriptableObject-Architecture.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(TinykinManagedDir)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(TinykinManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.IMGUIModule" HintPath="$(TinykinManagedDir)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(TinykinManagedDir)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(TinykinManagedDir)\UnityEngine.PhysicsModule.dll" Private="false" />
+    <Reference Include="Unity.InputSystem" HintPath="$(TinykinManagedDir)\Unity.InputSystem.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="CheckLocalInstall" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(TinykinManagedDir)\Game.dll')"
+           Text="Tinykin not found in '$(TinykinDir)'. Copy LocalSettings.props.example to LocalSettings.props and set TinykinDir." />
+    <Error Condition="!Exists('$(BepInExCoreDir)\BepInEx.dll')"
+           Text="BepInEx 5 not found in '$(TinykinDir)'. Install BepInEx 5 (win x64) into the game folder first." />
+  </Target>
+
+  <!-- Generates the PluginInfo constants from the properties above, so the version lives in one place. -->
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="// &lt;auto-generated /&gt;;namespace $(RootNamespace);{;    internal static class PluginInfo;    {;        public const string Guid = &quot;$(PluginGuid)&quot;%3B;        public const string Name = &quot;$(Product)&quot;%3B;        public const string Version = &quot;$(Version)&quot;%3B;    };}" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+      <FileWrites Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Copies the built plugin into the game's BepInEx\plugins folder. Disable with -p:DeployToGame=false -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="'$(DeployToGame)' != 'false'">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb"
+          DestinationFolder="$(BepInExPluginsDir)\$(AssemblyName)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Deployed $(TargetFileName) to $(BepInExPluginsDir)\$(AssemblyName)" />
+  </Target>
+
+</Project>

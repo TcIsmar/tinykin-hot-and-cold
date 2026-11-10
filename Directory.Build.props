@@ -1,0 +1,17 @@
+<Project>
+  <!--
+    Per-machine overrides live in LocalSettings.props (git-ignored).
+    Copy LocalSettings.props.example to LocalSettings.props and set your Tinykin path,
+    or set a TinykinDir environment variable.
+  -->
+  <Import Project="$(MSBuildThisFileDirectory)LocalSettings.props"
+          Condition="Exists('$(MSBuildThisFileDirectory)LocalSettings.props')" />
+
+  <PropertyGroup>
+    <!-- Folder that contains Tinykin.exe -->
+    <TinykinDir Condition="'$(TinykinDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Tinykin</TinykinDir>
+    <TinykinManagedDir>$(TinykinDir)\Tinykin_Data\Managed</TinykinManagedDir>
+    <BepInExCoreDir>$(TinykinDir)\BepInEx\core</BepInExCoreDir>
+    <BepInExPluginsDir>$(TinykinDir)\BepInEx\plugins</BepInExPluginsDir>
+  </PropertyGroup>
+</Project>

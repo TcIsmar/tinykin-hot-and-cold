@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+dist/
+
+# IDE / per-user files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Per-machine settings (your Tinykin install path)
+LocalSettings.props
+
+# Never commit game files, BepInEx binaries or decompiled game code
+.decompiled/
+*.dll
+*.pdb
+*.exe
