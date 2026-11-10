@@ -16,13 +16,6 @@ namespace TinykinHotCold.Radar
         Burning,
     }
 
-    internal enum Trend
-    {
-        Steady,
-        Warmer,
-        Colder,
-    }
-
     internal enum HudAnchor
     {
         TopLeft,

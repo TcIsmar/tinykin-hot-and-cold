@@ -32,9 +32,10 @@ Fixed, not configurable.
 ### Hot/Cold (default)
 
 - Six coarse levels (Freezing, Cold, Cool, Warm, Hot, Burning) shown as a colored bar.
-- A warmer/colder trend and a pulse that speeds up as you get closer.
-- No distance numbers.
+- A pulse and tick that speed up as you get closer.
+- No distance numbers and no warmer/colder indicator: the bar alone is the hint (decided in playtesting).
 - At Burning, a hint when the target is hidden inside something (break it, push it, use tinykin).
+- The panel uses the game's own font, text style and pollen/tinykin icons, with arrows showing you can switch.
 
 ### Compass (opt-in)
 
@@ -43,13 +44,16 @@ Fixed, not configurable.
 
 ### Controls
 
-Rebindable. Ignored while the game is paused or in menus.
+Shown and rebindable in the game's own Controls menu (saved in the mod's config, never the game's save;
+the game's "reset controls" resets them too). Radar keys can't take a key the game's gameplay uses.
+Ignored while the game is paused or in menus.
 
 | Action | Keyboard | Controller |
 |---|---|---|
 | Radar on/off | F6 | D-pad Up |
-| Switch Pollen/Tinykin | F7 | D-pad Left/Right |
-| Compass on/off (if enabled in config) | F8 | D-pad Down |
+| Previous target | F7 | D-pad Left |
+| Next target | F8 | D-pad Right |
+| Compass on/off (Phase 4, if enabled in config) | F9 | D-pad Down |
 
 Tinykin binds no gameplay action to the D-pad (it only navigates menus), so it is free during play.
 
@@ -107,14 +111,19 @@ F6 / D-pad Up = census, F7 / D-pad Left or Right = nearest distance, F8 / D-pad 
 
 Findings: rumble through the game's `StartRumble` does nothing on a DualShock 4, so rumble is supported
 for Xbox-compatible controllers and PlayStation players are pointed to Steam Input.
-Dev keys moved to F9 (census) and F10 (nearest distance) so they don't clash with the radar controls.
+Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with the radar controls.
 
 ### Phase 2: Core radar
 
 - [x] Target tracker (pollen + tinykin) and nearest-target query
 - [x] Heat model (six levels, trend) and the 90% unlock gate
 - [x] First HUD and controls
-- [ ] Playtest: panel placement, distance bands, tick speed, trend responsiveness
+- [x] Playtest: panel placement, distance bands and tick speed all good (all 14 Living Room pollen found)
+- [x] Remove the warmer/colder indicator (too much of a hint)
+- [x] Style the panel with the game's font, text style and icons; add previous/next arrows
+- [x] Clearer "radar locked" message below 90%
+- [x] Radar keys in the game's Controls menu (view, rebind, reset)
+- [ ] Playtest the restyled panel and the Controls menu rows (main menu and pause menu)
 
 ### Phase 3: Feedback
 

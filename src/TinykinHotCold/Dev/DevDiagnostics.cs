@@ -8,7 +8,7 @@ namespace TinykinHotCold.Dev
 {
     /// <summary>
     /// Development helper (Debug builds only). Logs game state changes and runs the level census
-    /// on level start, when a counter changes, and on demand (F9 census, F10 nearest distance).
+    /// on level start, when a counter changes, and on demand (F10 census, F11 nearest distance).
     /// </summary>
     internal sealed class DevDiagnostics : MonoBehaviour
     {
@@ -28,7 +28,7 @@ namespace TinykinHotCold.Dev
         private void Awake()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
-            Plugin.Log.LogInfo("Dev keys: F9 = census, F10 = nearest distance");
+            Plugin.Log.LogInfo("Dev keys: F10 = census, F11 = nearest distance");
         }
 
         private void OnDestroy()
@@ -105,12 +105,12 @@ namespace TinykinHotCold.Dev
                 return;
             }
 
-            if (keyboard.f9Key.wasPressedThisFrame)
+            if (keyboard.f10Key.wasPressedThisFrame)
             {
                 RunCensus("manual", full: true);
             }
 
-            if (keyboard.f10Key.wasPressedThisFrame)
+            if (keyboard.f11Key.wasPressedThisFrame)
             {
                 LevelCensus.LogNearest(LevelCensus.Take());
             }

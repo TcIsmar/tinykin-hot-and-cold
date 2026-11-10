@@ -28,6 +28,10 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(TinykinManagedDir)\UnityEngine.PhysicsModule.dll" Private="false" />
     <Reference Include="Unity.InputSystem" HintPath="$(TinykinManagedDir)\Unity.InputSystem.dll" Private="false" />
     <Reference Include="UnityEngine.AudioModule" HintPath="$(TinykinManagedDir)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(TinykinManagedDir)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(TinykinManagedDir)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextCoreModule" HintPath="$(TinykinManagedDir)\UnityEngine.TextCoreModule.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(TinykinManagedDir)\Unity.TextMeshPro.dll" Private="false" />
     <Reference Include="Wwise" HintPath="$(TinykinManagedDir)\Wwise.dll" Private="false" />
   </ItemGroup>
 

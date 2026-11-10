@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using TinykinHotCold.Input;
+using TinykinHotCold.Integration;
 using UnityEngine;
 
 namespace TinykinHotCold.Radar
@@ -16,16 +18,16 @@ namespace TinykinHotCold.Radar
         private const float RumbleDuration = 0.07f;
 
         private readonly TargetScanner scanner = new TargetScanner();
-        private readonly TrendTracker trend = new TrendTracker();
-        private readonly RadarHud hud = new RadarHud();
+        private readonly RadarHudView view = new RadarHudView();
         private readonly HudState hudState = new HudState();
 
         private RadarSettings settings;
-        private RadarInput input;
+        private RadarActions actions;
+        private ControlsMenuRows controlsMenu;
 
         private Game level;
         private float levelReadyAt;
-        private bool pickTypeWhenReady;
+        private bool levelPrepared;
         private float nextDiscoverAt;
         private float nextEvaluateAt;
         private float nextTickAt;
@@ -39,48 +41,59 @@ namespace TinykinHotCold.Radar
         private void Awake()
         {
             settings = Plugin.Settings;
-            input = new RadarInput(settings.ToggleRadar.Value, settings.SwitchTarget.Value);
+            actions = new RadarActions(settings);
+            controlsMenu = new ControlsMenuRows(actions);
         }
 
         private void OnDestroy()
         {
-            input?.Dispose();
+            controlsMenu?.Dispose();
         }
 
         private void Update()
         {
-            hudState.Visible = false;
-            if (!TrackLevel())
+            controlsMenu.Update();
+            if (!UpdateRadar())
             {
-                return;
+                view.Hide();
             }
+        }
 
+        /// <summary>Returns true while the panel should be on screen.</summary>
+        private bool UpdateRadar()
+        {
             // Hidden, silent and deaf to its keys in menus, dialogues and cutscenes.
-            if (Game.INSTANCE.IsPaused || Game.PLAYER.ControlsLocked)
+            bool playing = TrackLevel() && !Game.INSTANCE.IsPaused && !Game.PLAYER.ControlsLocked;
+            actions.SetListening(playing);
+            if (!playing)
             {
-                return;
+                return false;
             }
 
-            if (pickTypeWhenReady)
+            if (!levelPrepared)
             {
-                pickTypeWhenReady = false;
-                type = PickType();
-                ResetFeedback();
+                levelPrepared = true;
+                view.UseAssets(GameUiAssets.Find());
+                if (radarOn)
+                {
+                    type = PickType();
+                    ResetFeedback();
+                }
             }
 
-            if (input.TogglePressed)
+            if (actions.Toggle.Pressed)
             {
                 Toggle();
             }
 
-            if (input.SwitchPressed && radarOn)
+            if (radarOn && (actions.Previous.Pressed || actions.Next.Pressed))
             {
                 SwitchTarget();
             }
 
             if (!radarOn)
             {
-                return;
+                return false;
             }
 
             float now = Time.unscaledTime;
@@ -92,23 +105,17 @@ namespace TinykinHotCold.Radar
 
             if (now >= nextEvaluateAt)
             {
-                Evaluate(now);
+                Evaluate();
                 nextEvaluateAt = now + EvaluateInterval;
             }
 
-            hudState.Visible = true;
             if (hudState.HasHeat && now >= nextTickAt)
             {
                 Tick(now);
             }
-        }
 
-        private void OnGUI()
-        {
-            if (hudState.Visible)
-            {
-                hud.Draw(hudState, settings.HudPosition.Value, settings.HudScale.Value);
-            }
+            view.Show(hudState, settings.HudPosition.Value, settings.HudScale.Value);
+            return true;
         }
 
         /// <summary>True once a level is running and its saved state has been applied.</summary>
@@ -131,9 +138,9 @@ namespace TinykinHotCold.Radar
             {
                 level = Game.INSTANCE;
                 levelReadyAt = Time.unscaledTime + StartDelay;
+                levelPrepared = false;
                 nextDiscoverAt = levelReadyAt;
                 scanner.Clear();
-                pickTypeWhenReady = radarOn;
                 Plugin.Log.LogInfo($"Level ready: {LevelDescription.INSTANCE.sceneData.sceneName}");
             }
 
@@ -152,6 +159,7 @@ namespace TinykinHotCold.Radar
             Plugin.Log.LogInfo(radarOn ? $"Radar on ({type})" : "Radar off");
         }
 
+        /// <summary>There are two targets, so previous and next both switch to the other one.</summary>
         private void SwitchTarget()
         {
             type = type == TargetType.Pollen ? TargetType.Tinykin : TargetType.Pollen;
@@ -184,57 +192,56 @@ namespace TinykinHotCold.Radar
 
         private void ResetFeedback()
         {
-            trend.Reset();
             heatLevel = HeatLevel.Freezing;
             nextEvaluateAt = 0f;
             nextTickAt = 0f;
         }
 
-        private void Evaluate(float now)
+        private void Evaluate()
         {
             FoundProgress progress = FoundProgress.For(type);
-            hudState.Title = type == TargetType.Pollen ? "POLLEN" : "TINYKIN";
+            string noun = type == TargetType.Pollen ? "pollen" : "tinykin";
+            hudState.Type = type;
             hudState.Count = progress.HasAny ? $"{progress.Remaining} left" : string.Empty;
             hudState.HasHeat = false;
             hudState.Hint = null;
 
             if (!progress.HasAny)
             {
-                hudState.Status = type == TargetType.Pollen ? "No pollen in this level" : "No tinykin in this level";
+                hudState.Status = $"No {noun} in this level";
                 return;
             }
 
             if (progress.IsComplete)
             {
-                hudState.Status = "All found here!";
+                hudState.Status = $"All {noun} found here!";
                 return;
             }
 
             if (!progress.IsUnlocked)
             {
                 int unlockPercent = Mathf.RoundToInt(FoundProgress.UnlockFraction * 100f);
-                hudState.Status = $"Unlocks at {unlockPercent}% · now {progress.Percent}%";
+                hudState.Status = $"Radar locked\nFind {unlockPercent}% of the {noun} first\n(you're at {progress.Percent}%)";
                 return;
             }
 
             nearest = scanner.FindNearest(type, Game.PLAYER.transform.position);
             if (!nearest.Found)
             {
-                hudState.Status = "Can't locate the rest";
+                hudState.Status = "Can't locate the rest right now";
                 return;
             }
 
             heatLevel = HeatModel.LevelFor(nearest.Distance, heatLevel);
             hudState.HasHeat = true;
             hudState.Level = heatLevel;
-            hudState.Trend = trend.Update(now, nearest.Distance, nearest.TargetId);
             hudState.Hint = heatLevel == HeatLevel.Burning && nearest.Hidden ? "Something here is hiding it" : null;
         }
 
         private void Tick(float now)
         {
             nextTickAt = now + HeatModel.TickInterval(nearest.Distance);
-            hud.Pulse();
+            view.Pulse();
             if (settings.Sound.Value)
             {
                 PlayTickSound();
