@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
+using TinykinHotCold.Radar;
 
 namespace TinykinHotCold
 {
@@ -9,9 +10,13 @@ namespace TinykinHotCold
     {
         internal static ManualLogSource Log { get; private set; }
 
+        internal static RadarSettings Settings { get; private set; }
+
         private void Awake()
         {
             Log = Logger;
+            Settings = new RadarSettings(Config);
+            gameObject.AddComponent<RadarController>();
             Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded.");
 #if DEBUG
             gameObject.AddComponent<Dev.DevDiagnostics>();

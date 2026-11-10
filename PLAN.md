@@ -98,20 +98,29 @@ Debug-only diagnostics (`src/TinykinHotCold/Dev/`, excluded from Release builds)
 F6 / D-pad Up = census, F7 / D-pad Left or Right = nearest distance, F8 / D-pad Down = sound + rumble test.
 
 - [x] Log remaining pollen (loose + containers) and tinykin (eggs + cages) per level
-- [ ] Reconcile those numbers with the game's own counters on a real save
-- [ ] Confirm the whole level is loaded at once
-- [ ] Confirm keyboard and controller input through the Input System
-- [ ] Try playing a game sound (Wwise) and a Unity sound
+- [x] Reconcile those numbers with the game's own counters on a real save
+  (Living Room: pollen 14 = 2 loose + 12 in 2 touch containers; tinykin 0; both MATCH)
+- [x] Confirm the whole level is loaded at once
+- [x] Confirm keyboard and controller input through the Input System (F-keys, DualShock 4 D-pad)
+- [x] Try playing a game sound (Wwise) and a Unity sound
+  (Unity audio is disabled in this game; tick = Wwise "UI contextual icon", picked in playtesting)
+
+Findings: rumble through the game's `StartRumble` does nothing on a DualShock 4, so rumble is supported
+for Xbox-compatible controllers and PlayStation players are pointed to Steam Input.
+Dev keys moved to F9 (census) and F10 (nearest distance) so they don't clash with the radar controls.
 
 ### Phase 2: Core radar
 
-- [ ] Target tracker (pollen + tinykin) and nearest-target query
-- [ ] Heat model (six levels, trend) and the 90% unlock gate
-- [ ] First HUD and controls
+- [x] Target tracker (pollen + tinykin) and nearest-target query
+- [x] Heat model (six levels, trend) and the 90% unlock gate
+- [x] First HUD and controls
+- [ ] Playtest: panel placement, distance bands, tick speed, trend responsiveness
 
 ### Phase 3: Feedback
 
-- [ ] Visual pulse, rumble pulses, audio (best effort)
+- [x] Visual pulse and tick sound
+- [x] Rumble pulses at Warm and hotter (Xbox-compatible controllers)
+- [ ] Verify rumble with an Xbox controller or Steam Input
 
 ### Phase 4: Compass
 
