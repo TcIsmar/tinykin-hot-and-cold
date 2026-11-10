@@ -90,11 +90,14 @@ The mod never enables it.
 - [x] Install the .NET 10 SDK and ilspycmd; decompile the game code into `.decompiled/`
 - [x] Scaffold the project with a build step that deploys to `BepInEx/plugins`
 - [x] Local git repository (no remote yet)
-- [ ] In-game smoke test: the plugin loads and logs scene changes
+- [x] In-game smoke test: the plugin loads and logs scene changes
 
 ### Phase 1: Verification spike
 
-- [ ] Log remaining pollen (loose + containers) and tinykin (eggs + cages) per level
+Debug-only diagnostics (`src/TinykinHotCold/Dev/`, excluded from Release builds):
+F6 / D-pad Up = census, F7 / D-pad Left or Right = nearest distance, F8 / D-pad Down = sound + rumble test.
+
+- [x] Log remaining pollen (loose + containers) and tinykin (eggs + cages) per level
 - [ ] Reconcile those numbers with the game's own counters on a real save
 - [ ] Confirm the whole level is loaded at once
 - [ ] Confirm keyboard and controller input through the Input System

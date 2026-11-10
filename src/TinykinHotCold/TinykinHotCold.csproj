@@ -27,6 +27,8 @@
     <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(TinykinManagedDir)\UnityEngine.TextRenderingModule.dll" Private="false" />
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(TinykinManagedDir)\UnityEngine.PhysicsModule.dll" Private="false" />
     <Reference Include="Unity.InputSystem" HintPath="$(TinykinManagedDir)\Unity.InputSystem.dll" Private="false" />
+    <Reference Include="UnityEngine.AudioModule" HintPath="$(TinykinManagedDir)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="Wwise" HintPath="$(TinykinManagedDir)\Wwise.dll" Private="false" />
   </ItemGroup>
 
   <Target Name="CheckLocalInstall" BeforeTargets="ResolveAssemblyReferences">

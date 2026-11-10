@@ -1,6 +1,5 @@
 using BepInEx;
 using BepInEx.Logging;
-using UnityEngine.SceneManagement;
 
 namespace TinykinHotCold
 {
@@ -14,22 +13,17 @@ namespace TinykinHotCold
         {
             Log = Logger;
             Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded.");
-            SceneManager.sceneLoaded += OnSceneLoaded;
+#if DEBUG
+            gameObject.AddComponent<Dev.DevDiagnostics>();
+            Log.LogInfo("Development diagnostics enabled (Debug build).");
+#endif
         }
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             // If this shows up mid-game, the game destroyed our manager object and we need
             // BepInEx's HideManagerGameObject option (or our own persistent object).
             Log.LogWarning("Plugin object destroyed.");
-        }
-
-        // Phase 0 smoke test: proves the plugin loads, survives scene changes,
-        // and can call into the game's own code (Game.dll).
-        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Log.LogInfo($"Scene loaded: '{scene.name}' ({mode}), full game: {Game.IsFullGame}, game started: {Game.IsGameStarted}");
         }
     }
 }
