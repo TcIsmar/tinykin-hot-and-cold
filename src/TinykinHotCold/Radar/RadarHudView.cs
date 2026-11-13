@@ -7,8 +7,6 @@ namespace TinykinHotCold.Radar
     /// <summary>What the radar panel shows.</summary>
     internal sealed class HudState
     {
-        public TargetType Type;
-        public string Count = string.Empty;
         public bool HasHeat;
         public HeatLevel Level;
         public string Status = string.Empty;
@@ -16,26 +14,29 @@ namespace TinykinHotCold.Radar
     }
 
     /// <summary>
-    /// The radar panel, built with Unity UI and TextMeshPro in the game's own font and icons:
-    /// arrows and the target's icon with how many are left, the six-step hot/cold bar and its level.
+    /// The radar panel, built with Unity UI and TextMeshPro in the game's own font: the eight-step hot/cold
+    /// bar and its level, or a short message. It never says what it is leading to or how many are left.
     /// </summary>
     internal sealed class RadarHudView
     {
         private const float Width = 320f;
         private const float Margin = 24f;
+        private const float TopPadding = 18f;
         private const float PulseDuration = 0.2f;
 
         private static readonly Color[] LevelColors =
         {
             new Color(0.36f, 0.62f, 1.00f), // Freezing
             new Color(0.47f, 0.80f, 1.00f), // Cold
+            new Color(0.52f, 0.88f, 0.95f), // Chilly
             new Color(0.56f, 0.93f, 0.78f), // Cool
             new Color(1.00f, 0.84f, 0.32f), // Warm
-            new Color(1.00f, 0.58f, 0.22f), // Hot
+            new Color(1.00f, 0.68f, 0.26f), // Toasty
+            new Color(1.00f, 0.50f, 0.22f), // Hot
             new Color(1.00f, 0.30f, 0.25f), // Burning
         };
 
-        private static readonly string[] LevelNames = { "FREEZING", "COLD", "COOL", "WARM", "HOT", "BURNING" };
+        private static readonly string[] LevelNames = { "FREEZING", "COLD", "CHILLY", "COOL", "WARM", "TOASTY", "HOT", "BURNING" };
 
         private static readonly Color PanelColor = new Color(0.05f, 0.04f, 0.10f, 0.62f);
         private static readonly Color UnlitSegment = new Color(1f, 1f, 1f, 0.16f);
@@ -45,9 +46,6 @@ namespace TinykinHotCold.Radar
 
         private GameObject root;
         private RectTransform panel;
-        private Image typeIcon;
-        private TextMeshProUGUI typeName;
-        private TextMeshProUGUI countText;
         private RectTransform bar;
         private TextMeshProUGUI levelText;
         private TextMeshProUGUI hintText;
@@ -90,13 +88,6 @@ namespace TinykinHotCold.Radar
                 Build();
             }
 
-            Sprite icon = state.Type == TargetType.Pollen ? assets.PollenIcon : assets.TinykinIcon;
-            typeIcon.sprite = icon;
-            typeIcon.gameObject.SetActive(icon != null);
-            typeName.text = state.Type == TargetType.Pollen ? "Pollen" : "Tinykin";
-            typeName.gameObject.SetActive(icon == null);
-            countText.text = state.Count;
-
             bar.gameObject.SetActive(state.HasHeat);
             levelText.gameObject.SetActive(state.HasHeat);
             hintText.gameObject.SetActive(state.HasHeat && state.Hint != null);
@@ -109,7 +100,7 @@ namespace TinykinHotCold.Radar
                 levelText.text = LevelNames[(int)state.Level];
                 levelText.color = LevelColors[(int)state.Level];
                 hintText.text = state.Hint ?? string.Empty;
-                height = state.Hint != null ? 146f : 120f;
+                height = state.Hint != null ? 106f : 80f;
             }
             else
             {
@@ -117,8 +108,8 @@ namespace TinykinHotCold.Radar
                 int lines = state.Status.Split('\n').Length;
                 statusText.text = state.Status;
                 statusText.rectTransform.sizeDelta = new Vector2(300f, lines * 24f);
-                statusText.rectTransform.anchoredPosition = new Vector2(0f, -58f - lines * 12f);
-                height = 68f + lines * 24f;
+                statusText.rectTransform.anchoredPosition = new Vector2(0f, -TopPadding - lines * 12f);
+                height = 2f * TopPadding + lines * 24f;
             }
 
             Place(anchor, height, scale);
@@ -188,37 +179,13 @@ namespace TinykinHotCold.Radar
             Image background = NewImage("Panel", root.transform, UiSprites.Rounded, PanelColor);
             panel = background.rectTransform;
 
-            // Title row: arrows on the edges, the target's icon (or name) and how many are left in the middle.
-            NewArrow("Previous", flip: true, anchorX: 0f, x: 26f);
-            NewArrow("Next", flip: false, anchorX: 1f, x: -26f);
-
-            var title = new GameObject("Title", typeof(RectTransform));
-            title.transform.SetParent(panel, false);
-            var titleRect = (RectTransform)title.transform;
-            Pin(titleRect, new Vector2(0.5f, 1f), new Vector2(0f, -34f), new Vector2(220f, 44f));
-            var row = title.AddComponent<HorizontalLayoutGroup>();
-            row.childAlignment = TextAnchor.MiddleCenter;
-            row.spacing = 10f;
-            row.childControlWidth = true;
-            row.childControlHeight = true;
-            row.childForceExpandWidth = false;
-            row.childForceExpandHeight = false;
-
-            typeIcon = NewImage("Icon", title.transform, null, Color.white);
-            typeIcon.preserveAspect = true;
-            var iconLayout = typeIcon.gameObject.AddComponent<LayoutElement>();
-            iconLayout.preferredWidth = 38f;
-            iconLayout.preferredHeight = 38f;
-            typeName = NewText("Name", title.transform, 26f, FontStyles.Bold, TextAlignmentOptions.Center, Color.white);
-            countText = NewText("Count", title.transform, 26f, FontStyles.Bold, TextAlignmentOptions.Center, Color.white);
-
-            // The six-step hot/cold bar.
+            // The hot/cold bar, one segment per level, filling the same width however many levels there are.
             var barObject = new GameObject("Bar", typeof(RectTransform));
             barObject.transform.SetParent(panel, false);
             bar = (RectTransform)barObject.transform;
-            Pin(bar, new Vector2(0.5f, 1f), new Vector2(0f, -73f), new Vector2(276f, 16f));
-            const float segmentWidth = 40f;
-            const float gap = 7.2f;
+            Pin(bar, new Vector2(0.5f, 1f), new Vector2(0f, -TopPadding - 8f), new Vector2(276f, 16f));
+            const float gap = 6f;
+            float segmentWidth = (bar.sizeDelta.x - gap * (segments.Length - 1)) / segments.Length;
             for (int i = 0; i < segments.Length; i++)
             {
                 Image segment = NewImage("Segment" + i, bar, UiSprites.Rounded, UnlitSegment);
@@ -229,21 +196,11 @@ namespace TinykinHotCold.Radar
             }
 
             levelText = NewText("Level", panel, 22f, FontStyles.Bold, TextAlignmentOptions.Center, Color.white);
-            Pin(levelText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -101f), new Vector2(290f, 28f));
+            Pin(levelText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -TopPadding - 36f), new Vector2(290f, 28f));
             hintText = NewText("Hint", panel, 17f, FontStyles.Normal, TextAlignmentOptions.Center, SoftWhite);
-            Pin(hintText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -127f), new Vector2(300f, 24f));
+            Pin(hintText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -TopPadding - 62f), new Vector2(300f, 24f));
             statusText = NewText("Status", panel, 19f, FontStyles.Normal, TextAlignmentOptions.Center, SoftWhite);
-            Pin(statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -84f), new Vector2(300f, 52f));
-        }
-
-        private void NewArrow(string name, bool flip, float anchorX, float x)
-        {
-            Image arrow = NewImage(name, panel, UiSprites.Arrow, SoftWhite);
-            Pin(arrow.rectTransform, new Vector2(anchorX, 1f), new Vector2(x, -34f), new Vector2(18f, 22f));
-            if (flip)
-            {
-                arrow.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
-            }
+            Pin(statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -TopPadding - 26f), new Vector2(300f, 52f));
         }
 
         private static Image NewImage(string name, Transform parent, Sprite sprite, Color color)

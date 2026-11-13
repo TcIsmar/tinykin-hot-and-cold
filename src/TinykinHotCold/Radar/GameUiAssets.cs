@@ -7,22 +7,18 @@ using UnityEngine;
 namespace TinykinHotCold.Radar
 {
     /// <summary>
-    /// Borrows the look of the game's own HUD: the font and text style of its pollen counter, and the
-    /// pollen and tinykin icons. Anything not found falls back to plain text.
+    /// Borrows the look of the game's own HUD: the font and text style of its pollen counter.
+    /// Anything not found falls back to another font the game has loaded.
     /// </summary>
     internal sealed class GameUiAssets
     {
-        // Letters the panel always shows; a font without them is a numbers-only or symbol font.
-        private const string RequiredCharacters = "PollenTinyk";
+        // Letters the panel shows; a font without them is a numbers-only or symbol font.
+        private const string RequiredCharacters = "BURNINGFREZCOLDWATYHSRadrlockeNothinf";
 
         internal TMP_FontAsset Font { get; private set; }
 
         /// <summary>The game's text material (outline and shadow), or null to use the font's own.</summary>
         internal Material FontMaterial { get; private set; }
-
-        internal Sprite PollenIcon { get; private set; }
-
-        internal Sprite TinykinIcon { get; private set; }
 
         internal static GameUiAssets Find()
         {
@@ -42,9 +38,7 @@ namespace TinykinHotCold.Radar
                 assets.Font = loaded.FirstOrDefault(HasCharacters) ?? loaded.FirstOrDefault();
             }
 
-            Plugin.Log.LogInfo(
-                $"Radar panel style: font '{(assets.Font != null ? assets.Font.name : "none")}', " +
-                $"pollen icon: {assets.PollenIcon != null}, tinykin icon: {assets.TinykinIcon != null}");
+            Plugin.Log.LogInfo($"Radar panel style: font '{(assets.Font != null ? assets.Font.name : "none")}'");
             return assets;
         }
 
@@ -56,10 +50,8 @@ namespace TinykinHotCold.Radar
                 return;
             }
 
-            ProgressUI pollen = ProgressOf(gui.GetComponentInChildren<BasicCollectibleUI>(true));
-            ProgressUI tinykin = ProgressOf(gui.GetComponentInChildren<SbirzCollectibleUI>(true));
-            PollenIcon = IconOf(pollen);
-            TinykinIcon = IconOf(tinykin);
+            BasicCollectibleUI pollenCounter = gui.GetComponentInChildren<BasicCollectibleUI>(true);
+            ProgressUI pollen = pollenCounter != null ? pollenCounter.progressUI : null;
 
             // Prefer the pollen counter's text style; otherwise the font the game's UI uses most.
             TextMeshProUGUI sample = pollen != null ? pollen.valueDisplay : null;
@@ -87,11 +79,6 @@ namespace TinykinHotCold.Radar
                 FontMaterial = sample.fontSharedMaterial;
             }
         }
-
-        private static ProgressUI ProgressOf(CollectibleUI ui) => ui != null ? ui.progressUI : null;
-
-        private static Sprite IconOf(ProgressUI progress) =>
-            progress != null && progress.icon != null ? progress.icon.sprite : null;
 
         private static bool HasCharacters(TMP_FontAsset font) => font != null && font.HasCharacters(RequiredCharacters);
     }

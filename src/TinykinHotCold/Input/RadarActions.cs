@@ -27,9 +27,7 @@ namespace TinykinHotCold.Input
             InputActionMap map = asset.AddActionMap("Hot & Cold");
 
             Toggle = new RadarAction(map, "ToggleRadar", "Radar on/off", settings.ToggleRadarKeyboard, settings.ToggleRadarGamepad);
-            Previous = new RadarAction(map, "PreviousTarget", "Radar: previous target", settings.PreviousTargetKeyboard, settings.PreviousTargetGamepad);
-            Next = new RadarAction(map, "NextTarget", "Radar: next target", settings.NextTargetKeyboard, settings.NextTargetGamepad);
-            All = new[] { Toggle, Previous, Next };
+            All = new[] { Toggle };
 
             // Starts disabled; see SetListening.
             foreach (RadarAction action in All)
@@ -39,10 +37,6 @@ namespace TinykinHotCold.Input
         }
 
         internal RadarAction Toggle { get; }
-
-        internal RadarAction Previous { get; }
-
-        internal RadarAction Next { get; }
 
         internal IReadOnlyList<RadarAction> All { get; }
 

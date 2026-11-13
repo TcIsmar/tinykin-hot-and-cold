@@ -33,7 +33,6 @@ namespace TinykinHotCold.Radar
         private float nextTickAt;
 
         private bool radarOn;
-        private TargetType type = TargetType.Pollen;
         private HeatLevel heatLevel = HeatLevel.Freezing;
         private TargetScanner.Nearest nearest;
         private bool soundFailed;
@@ -76,7 +75,6 @@ namespace TinykinHotCold.Radar
                 view.UseAssets(GameUiAssets.Find());
                 if (radarOn)
                 {
-                    type = PickType();
                     ResetFeedback();
                 }
             }
@@ -84,11 +82,6 @@ namespace TinykinHotCold.Radar
             if (actions.Toggle.Pressed)
             {
                 Toggle();
-            }
-
-            if (radarOn && (actions.Previous.Pressed || actions.Next.Pressed))
-            {
-                SwitchTarget();
             }
 
             if (!radarOn)
@@ -150,44 +143,16 @@ namespace TinykinHotCold.Radar
         private void Toggle()
         {
             radarOn = !radarOn;
-            if (radarOn)
+            if (!radarOn)
             {
-                type = PickType();
-                ResetFeedback();
+                Plugin.Log.LogInfo("Radar off");
+                return;
             }
 
-            Plugin.Log.LogInfo(radarOn ? $"Radar on ({type})" : "Radar off");
-        }
-
-        /// <summary>There are two targets, so previous and next both switch to the other one.</summary>
-        private void SwitchTarget()
-        {
-            type = type == TargetType.Pollen ? TargetType.Tinykin : TargetType.Pollen;
             ResetFeedback();
-            Plugin.Log.LogInfo($"Radar target: {type}");
-        }
-
-        /// <summary>Starts on whichever type is unfinished here, preferring one the radar is unlocked for.</summary>
-        private TargetType PickType()
-        {
-            FoundProgress pollen = FoundProgress.For(TargetType.Pollen);
-            FoundProgress tinykin = FoundProgress.For(TargetType.Tinykin);
-            if (!pollen.IsComplete && pollen.IsUnlocked)
-            {
-                return TargetType.Pollen;
-            }
-
-            if (!tinykin.IsComplete && tinykin.IsUnlocked)
-            {
-                return TargetType.Tinykin;
-            }
-
-            if (!pollen.IsComplete)
-            {
-                return TargetType.Pollen;
-            }
-
-            return !tinykin.IsComplete ? TargetType.Tinykin : type;
+            scanner.Discover();
+            nextDiscoverAt = Time.unscaledTime + RediscoverInterval;
+            Plugin.Log.LogInfo($"Radar on. Can lead to: {scanner.Summary()}");
         }
 
         private void ResetFeedback()
@@ -199,36 +164,24 @@ namespace TinykinHotCold.Radar
 
         private void Evaluate()
         {
-            FoundProgress progress = FoundProgress.For(type);
-            string noun = type == TargetType.Pollen ? "pollen" : "tinykin";
-            hudState.Type = type;
-            hudState.Count = progress.HasAny ? $"{progress.Remaining} left" : string.Empty;
+            FoundProgress pollen = FoundProgress.Pollen();
+            FoundProgress tinykin = FoundProgress.Tinykin();
             hudState.HasHeat = false;
             hudState.Hint = null;
 
-            if (!progress.HasAny)
+            if (!pollen.IsUnlocked || !tinykin.IsUnlocked)
             {
-                hudState.Status = $"No {noun} in this level";
+                hudState.Status = LockedMessage(pollen, tinykin);
                 return;
             }
 
-            if (progress.IsComplete)
-            {
-                hudState.Status = $"All {noun} found here!";
-                return;
-            }
-
-            if (!progress.IsUnlocked)
-            {
-                int unlockPercent = Mathf.RoundToInt(FoundProgress.UnlockFraction * 100f);
-                hudState.Status = $"Radar locked\nFind {unlockPercent}% of the {noun} first\n(you're at {progress.Percent}%)";
-                return;
-            }
-
-            nearest = scanner.FindNearest(type, Game.PLAYER.transform.position);
+            // One shared bar for everything that's left; the panel never says what or how many.
+            nearest = scanner.FindNearest(Game.PLAYER.transform.position);
             if (!nearest.Found)
             {
-                hudState.Status = "Can't locate the rest right now";
+                hudState.Status = pollen.IsComplete && tinykin.IsComplete
+                    ? "Nothing left to track here!"
+                    : "Can't locate the rest right now";
                 return;
             }
 
@@ -236,6 +189,21 @@ namespace TinykinHotCold.Radar
             hudState.HasHeat = true;
             hudState.Level = heatLevel;
             hudState.Hint = heatLevel == HeatLevel.Burning && nearest.Hidden ? "Something here is hiding it" : null;
+        }
+
+        /// <summary>Unlocks once both are at 90%; a level without pollen or without tinykin only needs the other.</summary>
+        private static string LockedMessage(FoundProgress pollen, FoundProgress tinykin)
+        {
+            int unlockPercent = Mathf.RoundToInt(FoundProgress.UnlockFraction * 100f);
+            if (pollen.HasAny && tinykin.HasAny)
+            {
+                return $"Radar locked\nFind {unlockPercent}% of pollen and tinykin\n" +
+                       $"(pollen {pollen.Percent}%, tinykin {tinykin.Percent}%)";
+            }
+
+            string noun = pollen.HasAny ? "pollen" : "tinykin";
+            int percent = pollen.HasAny ? pollen.Percent : tinykin.Percent;
+            return $"Radar locked\nFind {unlockPercent}% of the {noun} first\n(you're at {percent}%)";
         }
 
         private void Tick(float now)
@@ -249,8 +217,15 @@ namespace TinykinHotCold.Radar
 
             if (settings.Rumble.Value && heatLevel >= HeatLevel.Warm)
             {
-                StartCoroutine(RumblePulse(heatLevel == HeatLevel.Burning ? 0.7f : heatLevel == HeatLevel.Hot ? 0.45f : 0.25f));
+                StartCoroutine(RumblePulse(RumbleStrength(heatLevel)));
             }
+        }
+
+        /// <summary>Stronger the hotter it gets: 0.25 at Warm up to 0.7 at Burning.</summary>
+        private static float RumbleStrength(HeatLevel level)
+        {
+            float t = (float)(level - HeatLevel.Warm) / (HeatLevel.Burning - HeatLevel.Warm);
+            return Mathf.Lerp(0.25f, 0.7f, t);
         }
 
         private void PlayTickSound()

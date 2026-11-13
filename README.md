@@ -2,7 +2,8 @@
 
 A quality-of-life mod for [Tinykin](https://store.steampowered.com/app/1599020/Tinykin/) that helps you find
 the last few missing pollen and tinykin in a level with a toggleable "hot and cold" radar.
-It narrows down the search without ever revealing exact locations.
+Once you've found 90% of both, it leads to everything that's left there, including artifacts and
+unfinished quest steps. It narrows down the search without ever revealing exact locations.
 
 > Status: early development. See [PLAN.md](PLAN.md).
 

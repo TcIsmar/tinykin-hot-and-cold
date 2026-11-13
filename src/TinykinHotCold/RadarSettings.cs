@@ -19,14 +19,6 @@ namespace TinykinHotCold
                 "Keyboard key that turns the radar on and off." + BindingNote);
             ToggleRadarGamepad = config.Bind(ControlsSection, "ToggleRadarGamepad", "<Gamepad>/dpad/up",
                 "Controller button that turns the radar on and off." + BindingNote);
-            PreviousTargetKeyboard = config.Bind(ControlsSection, "PreviousTargetKeyboard", "<Keyboard>/f7",
-                "Keyboard key that switches the radar to the previous target (pollen or tinykin)." + BindingNote);
-            PreviousTargetGamepad = config.Bind(ControlsSection, "PreviousTargetGamepad", "<Gamepad>/dpad/left",
-                "Controller button that switches the radar to the previous target (pollen or tinykin)." + BindingNote);
-            NextTargetKeyboard = config.Bind(ControlsSection, "NextTargetKeyboard", "<Keyboard>/f8",
-                "Keyboard key that switches the radar to the next target (pollen or tinykin)." + BindingNote);
-            NextTargetGamepad = config.Bind(ControlsSection, "NextTargetGamepad", "<Gamepad>/dpad/right",
-                "Controller button that switches the radar to the next target (pollen or tinykin)." + BindingNote);
 
             Sound = config.Bind("Feedback", "Sound", true, "Plays a tick that speeds up as you get closer.");
             Rumble = config.Bind("Feedback", "Rumble", true,
@@ -41,14 +33,6 @@ namespace TinykinHotCold
         internal ConfigEntry<string> ToggleRadarKeyboard { get; }
 
         internal ConfigEntry<string> ToggleRadarGamepad { get; }
-
-        internal ConfigEntry<string> PreviousTargetKeyboard { get; }
-
-        internal ConfigEntry<string> PreviousTargetGamepad { get; }
-
-        internal ConfigEntry<string> NextTargetKeyboard { get; }
-
-        internal ConfigEntry<string> NextTargetGamepad { get; }
 
         internal ConfigEntry<bool> Sound { get; }
 

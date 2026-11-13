@@ -9,8 +9,9 @@ namespace TinykinHotCold.Radar
     /// </summary>
     internal static class HeatModel
     {
-        // Upper distance limits for Burning, Hot, Warm, Cool and Cold. Anything further is Freezing.
-        private static readonly float[] UpperLimits = { 4f, 10f, 20f, 40f, 75f };
+        // Upper distance limits for Burning, Hot, Toasty, Warm, Cool, Chilly and Cold; anything further is
+        // Freezing. Each step is about 1.6 times closer than the one before it, from 75 units down to 4.
+        private static readonly float[] UpperLimits = { 4f, 6.5f, 10.5f, 17f, 28f, 46f, 75f };
 
         // How far past a band edge you must move before the level changes, so it doesn't flicker.
         private const float Hysteresis = 0.75f;

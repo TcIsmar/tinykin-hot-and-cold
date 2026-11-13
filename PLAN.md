@@ -1,7 +1,8 @@
 # Tinykin Hot & Cold: Plan
 
 A quality-of-life BepInEx mod for **Tinykin** (Steam, Unity 2020.3, Mono) that helps you find the last few
-missing **pollen** and **tinykin** in a level with a toggleable "hot and cold" radar.
+missing **pollen** and **tinykin** in a level, and then the rest of what's left to do there (artifacts,
+the bubble, unfinished quest steps), with a toggleable "hot and cold" radar.
 
 ## Principles
 
@@ -16,26 +17,30 @@ missing **pollen** and **tinykin** in a level with a toggleable "hot and cold" r
 
 ### Targets
 
-One radar with two target types that you switch between in-game. It starts on whichever one is unfinished
-in the current level.
+One radar and one shared bar that leads to the nearest of everything that's left (decided 2026-11-13;
+switching between pollen and tinykin was dropped). The panel never says what it's leading to or how many
+are left. When nothing is left it says so ("Nothing left to track here!").
 
 | Target | Counts as remaining |
 |---|---|
-| Pollen | Loose pollen not yet collected; pollen still inside containers (breakable obstacles, tinykin interactions, soap bars) |
+| Pollen | Loose pollen not yet collected; pollen still inside containers (breakable obstacles, tinykin interactions, soap bars). A box that pays out when your tinykin deliver an item to it (a letter to a mailbox) leads to the item instead, and back to the box while your tinykin carry it. A soap bar that only appears once something is done (every candle in the Bedroom lit) isn't led to until it's out, unless nothing else is left |
 | Tinykin | Unhatched eggs; tinykin in unbroken cages |
+| Collectibles | The level's artifacts and its bubble (the pause menu's "soap" counter), not yet collected. One that isn't out yet leads to what's left to do to earn it when the level wires that up; otherwise its spot is a last resort, and one that is handed to you as a reward is left to the quest step that earns it |
+| Quest steps | Unfinished steps of quests you have started. Optional quests (lighting every candle) never save that you started them, so one counts as started once any of its steps is done. An objective that is complete in the game or in the save is skipped |
 
 ### Unlock gate
 
-The radar for a target type unlocks in a level once **90%** of that type has been found there.
-Fixed, not configurable.
+The radar unlocks in a level once **90% of the pollen and 90% of the tinykin** have been found there.
+A level with no pollen or no tinykin only needs the other. Fixed, not configurable.
 
 ### Hot/Cold (default)
 
-- Six coarse levels (Freezing, Cold, Cool, Warm, Hot, Burning) shown as a colored bar.
+- Eight levels (Freezing, Cold, Chilly, Cool, Warm, Toasty, Hot, Burning) shown as a colored bar.
+  From 75 units away down to 4, each level is about 1.6 times closer than the one before.
 - A pulse and tick that speed up as you get closer.
 - No distance numbers and no warmer/colder indicator: the bar alone is the hint (decided in playtesting).
 - At Burning, a hint when the target is hidden inside something (break it, push it, use tinykin).
-- The panel uses the game's own font, text style and pollen/tinykin icons, with arrows showing you can switch.
+- The panel uses the game's own font and text style and shows only the bar and its level (or a short message).
 
 ### Compass (opt-in)
 
@@ -51,9 +56,9 @@ Ignored while the game is paused or in menus.
 | Action | Keyboard | Controller |
 |---|---|---|
 | Radar on/off | F6 | D-pad Up |
-| Previous target | F7 | D-pad Left |
-| Next target | F8 | D-pad Right |
 | Compass on/off (Phase 4, if enabled in config) | F9 | D-pad Down |
+
+F7/F8 and D-pad Left/Right (previous/next target) were removed with the shared bar.
 
 Tinykin binds no gameplay action to the D-pad (it only navigates menus), so it is free during play.
 
@@ -127,6 +132,20 @@ Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with th
   including the tinykin side, the 90% lock message and switching targets
 - [x] Radar rows appear in the Controls menu (main menu and pause menu, confirmed in the log)
 - [ ] Try rebinding a radar key in the Controls menu
+- [x] Finer bar: eight levels instead of six (Chilly and Toasty added), same Freezing and Burning edges
+- [x] Playtest the eight-level bar (used to finish the game)
+- [x] Delivery boxes (mailbox and letter): lead to the item to deliver, not the box; the census logs them as "delivery"
+- [ ] Playtest a delivery box (the Kitchen's 10-pollen tinykin interaction)
+- [x] One shared bar for everything: no target switching, no icon or count on the panel,
+  unlocks at 90% of both pollen and tinykin, "Nothing left to track here!" when done
+- [x] Also leads to artifacts, the bubble and unfinished quest steps (logged on radar on as "Can lead to: ...")
+- [x] Playtest the shared bar, collectibles and quest steps (the game finished with it, 2026-11-13)
+- [x] Hidden rewards lead to what reveals them, not their own spot (the Bedroom's soap bar only appears once
+  all 10 candles are lit): when a trigger's events say "show this reward", the radar follows that trigger or
+  quest (works for the Bedroom's thief artifact); when the level doesn't say (the candle soap bar), the reward's
+  spot is only a last resort, used when nothing else is left. The census logs this as "REVEALED BY EVENTS"
+- [x] Optional quests count as started once any of their steps is done (they never save their status)
+- [x] Playtest it in the Bedroom (led to the last candle, not the soap bar's spot)
 
 ### Phase 3: Feedback
 
@@ -145,6 +164,6 @@ Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with th
 - [ ] Player README: install, uninstall, controls, Steam Deck launch option
 - [ ] LICENSE (MIT; confirm the copyright name)
 - [ ] Packaging: plugin-only zip and a full pack that includes BepInEx
-- [ ] Showcase post in the Steam General Discussions with a highlight video (drafted; credits Claude)
+- [x] Showcase post in the Steam General Discussions with a highlight video (credits Claude)
 - [ ] GitHub repository and Nexus Mods page; post in the
   [Steam thread](https://steamcommunity.com/app/1599020/discussions/0/3432326055082924313) that asked for this feature
