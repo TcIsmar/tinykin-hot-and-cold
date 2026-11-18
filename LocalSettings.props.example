@@ -2,6 +2,6 @@
   <!-- Copy this file to LocalSettings.props (git-ignored) and point it at your Tinykin install. -->
   <PropertyGroup>
     <!-- Folder that contains Tinykin.exe -->
-    <TinykinDir>E:\SteamLibrary\steamapps\common\Tinykin</TinykinDir>
+    <TinykinDir>D:\SteamLibrary\steamapps\common\Tinykin</TinykinDir>
   </PropertyGroup>
 </Project>

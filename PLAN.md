@@ -161,9 +161,10 @@ Dev keys are F10 (census) and F11 (nearest distance) so they don't clash with th
 
 - [ ] HUD styled like the game; documented config options
 - [ ] Strip development diagnostics (position logging) from release builds
-- [ ] Player README: install, uninstall, controls, Steam Deck launch option
-- [ ] LICENSE (MIT; confirm the copyright name)
+- [x] Player README: install, uninstall, controls, Steam Deck launch option (plus building and how it works)
+- [x] LICENSE (MIT, in the author's GitHub name)
 - [ ] Packaging: plugin-only zip and a full pack that includes BepInEx
 - [x] Showcase post in the Steam General Discussions with a highlight video (credits Claude)
-- [ ] GitHub repository and Nexus Mods page; post in the
+- [x] Private GitHub repository (TcIsmar/tinykin-hot-and-cold)
+- [ ] Make the repository public, add a release, Nexus Mods page; post in the
   [Steam thread](https://steamcommunity.com/app/1599020/discussions/0/3432326055082924313) that asked for this feature
