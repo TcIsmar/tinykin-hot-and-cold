@@ -8,8 +8,8 @@ a huge room. Turn the radar on and a bar tells you how warm you are: Freezing, C
 Hot, Burning. It never shows a marker, a distance or a map. The final find is always yours.
 
 > **Status:** version 0.1.0. It did what it was made for: it helped its author finish Tinykin and track down
-> the last pollen, tinykin and bonus quests in each level. There's no packaged download yet; see
-> [Building from source](#building-from-source).
+> the last pollen, tinykin and bonus quests in each level. Download it from the
+> [Releases page](https://github.com/TcIsmar/tinykin-hot-and-cold/releases) and see [Installation](#installation).
 > Development notes and history are in [PLAN.md](PLAN.md).
 
 ## Contents
@@ -146,8 +146,9 @@ Steps:
 3. **Install BepInEx.** Extract the BepInEx zip into that folder, so that `winhttp.dll` sits next to
    `Tinykin.exe`.
 4. **Start the game once and quit.** BepInEx creates its folders, including `BepInEx\plugins`.
-5. **Install the mod.** Copy the `TinykinHotCold` folder (with `TinykinHotCold.dll` inside) into
-   `BepInEx\plugins`.
+5. **Install the mod.** Download `TinykinHotCold-0.1.0.zip` from the
+   [Releases page](https://github.com/TcIsmar/tinykin-hot-and-cold/releases) and extract it into the game
+   folder. It puts `TinykinHotCold.dll` in `BepInEx\plugins\TinykinHotCold`.
 6. **Try it.** Start the game, load a level and press F6.
 
 Optional: to watch the mod's log while you play, set `Enabled = true` under `[Logging.Console]` in
